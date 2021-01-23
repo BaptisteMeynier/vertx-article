@@ -1,0 +1,12 @@
+/*C6*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
+/*C4*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
+/*C8*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
+/*C9*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
+/*C10*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
+/*C11*/SET SCHEMA PUBLIC
+create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)

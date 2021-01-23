@@ -1,0 +1,60 @@
+= Vertx-fishs
+
+image:https://img.shields.io/badge/vert.x-4.0.0.CR1-purple.svg[link="https://vertx.io"]
+
+This application was generated using http://start.vertx.io
+
+== Building
+
+To launch your tests:
+```
+./mvnw clean test
+```
+
+To package your application:
+```
+./mvnw clean package
+```
+
+To run your application:
+```
+./mvnw clean compile exec:java
+```
+
+== Help
+
+* https://vertx.io/docs/[Vert.x Documentation]
+* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
+* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
+* https://gitter.im/eclipse-vertx/vertx-users[Vert.x Gitter]
+
+
+sudo docker build -t bmeynier/fishs-database:v1.0.0 .
+
+docker run -d -p 3306:3306 --name fish-db -e MYSQL_ROOT_PASSWORD=supersecret bmeynier/fishs-database:v1.0.0
+
+
+./mvnw vertx:debug -Dvertx.verticle=com.bmeynier.article.vertx.fishs.MainVerticle  -Ddebug.suspend=true -Ddebug.port=5005
+
+
+----------------------------------------
+Auto reload on intellij
+
+Launcher:
+programm argument: run com.bmeynier.article.vertx.fishs.MainVerticle --redeploy=target/classes/**/*.class --launcher-class=io.vertx.core.Launcher
+main class: io.vertx.core.Launcher
+
+ctrl + MAJ + A
+Type: Registry
+Find the key compiler.automake.allow.when.app.running and enable it or click the checkbox next to it
+
+
+Setting:
+
+Build => Build project automatically => check
+
+
+$mvn gatling:test -Dgatling.simulationClass=computerdatabase.BasicSimulation
+
+
+vertx start com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle  -instances 10 -cp ./target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar
