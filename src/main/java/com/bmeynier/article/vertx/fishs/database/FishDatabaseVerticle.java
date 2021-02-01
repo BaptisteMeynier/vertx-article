@@ -67,7 +67,7 @@ public class FishDatabaseVerticle extends AbstractVerticle {
 
     HashMap<SqlQuery, String> sqlQueries = new HashMap<>();
     sqlQueries.put(SqlQuery.CREATE_FISHS_TABLE, queriesProps.getProperty("create-fishs-table"));
-   sqlQueries.put(SqlQuery.ALL_FISHS, queriesProps.getProperty("all-fishs"));
+    sqlQueries.put(SqlQuery.ALL_FISHS, queriesProps.getProperty("all-fishs"));
     sqlQueries.put(SqlQuery.CREATE_FISH, queriesProps.getProperty("create-fish"));
     sqlQueries.put(SqlQuery.SAVE_FISH, queriesProps.getProperty("save-fish"));
     sqlQueries.put(SqlQuery.DELETE_FISH, queriesProps.getProperty("delete-fish"));

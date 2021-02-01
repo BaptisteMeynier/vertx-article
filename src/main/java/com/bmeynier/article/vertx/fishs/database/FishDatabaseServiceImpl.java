@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
@@ -99,6 +100,19 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonArray>> resultHandler) {
     JsonArray data = new JsonArray().add(name);
     dbClient.updateWithParams(sqlQueries.get(SqlQuery.DELETE_FISH), data, res -> {
+      if (res.succeeded()) {
+        resultHandler.handle(Future.succeededFuture());
+      } else {
+        LOGGER.error("Database query error", res.cause());
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      }
+    });
+    return this;
+  }
+
+  @Override
+  public FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler) {
+    dbClient.getConnection(res -> {
       if (res.succeeded()) {
         resultHandler.handle(Future.succeededFuture());
       } else {

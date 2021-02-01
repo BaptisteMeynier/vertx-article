@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.bmeynier.article.vertx</groupId>
@@ -17,10 +17,10 @@
     <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
     <scala-maven-plugin.version>4.4.0</scala-maven-plugin.version>
     <gatling.version>3.1.0</gatling.version>
-    <vertx.version>4.0.0.CR1</vertx.version>
+    <vertx.version>4.0.0</vertx.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
     <assertj-core.version>3.18.1</assertj-core.version>
-
+    <micrometer.version>1.6.3</micrometer.version>
     <main.verticle>com.bmeynier.article.vertx.fishs.MainVerticle</main.verticle>
   </properties>
 
@@ -62,10 +62,10 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-sync</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-micrometer-metrics</artifactId>
-    </dependency>
+
+
+
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-json-schema</artifactId>
@@ -95,6 +95,28 @@
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+
+    <!-- DEVOPS -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-micrometer-metrics</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <version>${micrometer.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-influx</artifactId>
+      <version>${micrometer.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-jmx</artifactId>
+      <version>${micrometer.version}</version>
+    </dependency>
+    <!-- TEST -->
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
@@ -106,8 +128,6 @@
       <version>${assertj-core.version}</version>
       <scope>test</scope>
     </dependency>
-
-
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-client</artifactId>
@@ -137,9 +157,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-
-
 
 
   <build>
@@ -175,23 +192,23 @@
         <artifactId>gatling-maven-plugin</artifactId>
         <version>${gatling.version}</version>
       </plugin>
-          <plugin>
-            <groupId>io.reactiverse</groupId>
-            <artifactId>vertx-maven-plugin</artifactId>
-            <version>1.0.23</version>
-            <executions>
-              <execution>
-                <id>vmp</id>
-                <goals>
-                  <goal>initialize</goal>
-                  <goal>package</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <redeploy>true</redeploy>
-            </configuration>
-          </plugin>
+      <plugin>
+        <groupId>io.reactiverse</groupId>
+        <artifactId>vertx-maven-plugin</artifactId>
+        <version>1.0.23</version>
+        <executions>
+          <execution>
+            <id>vmp</id>
+            <goals>
+              <goal>initialize</goal>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <redeploy>true</redeploy>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>

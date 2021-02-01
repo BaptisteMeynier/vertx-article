@@ -58,3 +58,4 @@ $mvn gatling:test -Dgatling.simulationClass=computerdatabase.BasicSimulation
 
 
 vertx start com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle  -instances 10 -cp ./target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar
+java -jar target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.jmxEnabled=true

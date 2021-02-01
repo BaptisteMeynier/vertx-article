@@ -27,6 +27,7 @@ import io.vertx.core.Handler;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 
 import java.util.HashMap;
@@ -48,6 +49,8 @@ public interface FishDatabaseService {
   @Fluent
   FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonArray>> resultHandler);
 
+  @Fluent
+  FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler);
 
   @GenIgnore
   static FishDatabaseService create(JDBCClient dbClient, HashMap<SqlQuery, String> sqlQueries, Handler<AsyncResult<FishDatabaseService>> readyHandler) {

@@ -15,6 +15,12 @@ local.properties
 .loadpath
 .recommenders
 
+### IntelliJ ###
+.idea
+
+src/main/generated
+db
+
 # External tool builders
 .externalToolBuilders/
 
