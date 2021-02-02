@@ -1,4 +1,4 @@
-package com.bmeynier.article.vertx.fishs.database;
+package com.bmeynier.article.vertx.fishs.database.service;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

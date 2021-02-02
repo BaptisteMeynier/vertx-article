@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.bmeynier.article.vertx.fishs.database;
+package com.bmeynier.article.vertx.fishs.database.service;
 
-enum SqlQuery {
+public enum SqlQuery {
   CREATE_FISHS_TABLE,
   ALL_FISHS,
   CREATE_FISH,

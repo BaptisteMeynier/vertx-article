@@ -3,7 +3,6 @@ package com.bmeynier.article.vertx.fishs;
 import com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle;
 import com.bmeynier.article.vertx.fishs.http.HttpServerVerticle;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.micrometer.MicrometerMetricsOptions;
 import io.vertx.micrometer.VertxPrometheusOptions;
 
@@ -12,17 +11,13 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
-    Promise<String> dbVerticleDeployment = Promise.promise();
-    DeploymentOptions options = new DeploymentOptions();
-    options.setInstances(2);
-
-    vertx.deployVerticle(FishDatabaseVerticle.class.getName(), options, dbVerticleDeployment);
-
-    dbVerticleDeployment.future().compose(id -> {
-      Promise<String> httpVerticleDeployment = Promise.promise();
-      vertx.deployVerticle(HttpServerVerticle.class.getName(), httpVerticleDeployment);
-      return httpVerticleDeployment.future();
+    vertx.deployVerticle(FishDatabaseVerticle.class.getName(), new DeploymentOptions().setInstances(2))
+      .onSuccess(ar ->{
+        vertx.deployVerticle(HttpServerVerticle.class.getName());
+      }).onFailure(ar->{
+      System.out.println(ar.getCause().toString());
     });
+
 
    /* ShellService service = ShellService.create(vertx,
       new ShellServiceOptions().setTelnetOptions(

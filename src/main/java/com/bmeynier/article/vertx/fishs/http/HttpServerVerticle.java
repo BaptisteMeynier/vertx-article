@@ -18,20 +18,19 @@
 package com.bmeynier.article.vertx.fishs.http;
 
 
-import com.bmeynier.article.vertx.fishs.database.FishDatabaseService;
+import com.bmeynier.article.vertx.fishs.database.service.FishDatabaseService;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
 
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.micrometer.MicrometerMetricsOptions;
-import io.vertx.micrometer.PrometheusScrapingHandler;
-import io.vertx.micrometer.VertxPrometheusOptions;
 import io.vertx.micrometer.backends.BackendRegistries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,32 +38,45 @@ import org.slf4j.LoggerFactory;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
-
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerVerticle.class);
 
   public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
-  public static final String CONFIG_FISHDB_QUEUE = "fishdb.queue";
+  public static final String CONFIG_FISHDB_QUEUE = "bus.db";
   public static final String HEALTH_CONTEXT = "/health*";
   public static final String METRICS_CONTEXT = "/metrics*";
-
-  private String fishDbQueue = "fishdb.queue";
-
   private static final String FISH_CONTEXT = "/fish";
+  private static final ConfigStoreOptions conf = new ConfigStoreOptions()
+    .setType("file")
+    .setFormat("properties")
+    .setConfig(new JsonObject().put("path", "application.properties"));
 
   private FishDatabaseService dbService;
 
   @Override
   public void start(Promise<Void> promise) {
+    LOGGER.info("FISH SERVER VERTICLE");
 
-    HealthCheckHandler healthCheckHandler = healthHandler();
-
-    fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
+    String fishDbQueue = conf.getConfig().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
+    int portNumber = conf.getConfig().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
 
     dbService = FishDatabaseService.createProxy(vertx, fishDbQueue);
 
-    PrometheusMeterRegistry registry = (PrometheusMeterRegistry) BackendRegistries.getDefaultNow();
+    vertx.createHttpServer()
+      .requestHandler(getRouter())
+      .listen(portNumber)
+      .onSuccess(res -> {
+        LOGGER.info("HTTP server running on port " + portNumber);
+        promise.complete();
+      }).onFailure(ar -> {
+        LOGGER.error("Could not start a HTTP server", ar.getCause());
+        promise.fail(ar.getCause());
+      }
+    );
+  }
 
-    HttpServer server = vertx.createHttpServer();
+  private Router getRouter() {
+    PrometheusMeterRegistry registry = (PrometheusMeterRegistry) BackendRegistries.getDefaultNow();
+    HealthCheckHandler healthCheckHandler = healthHandler();
 
     Router router = Router.router(vertx);
     router.get(FISH_CONTEXT).handler(this::allFishsHandler);
@@ -73,31 +85,18 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.put(FISH_CONTEXT).handler(this::fishModificationHandler);
     router.delete(FISH_CONTEXT).handler(this::fishDeleteHandler);
     router.get(HEALTH_CONTEXT).handler(healthCheckHandler);
-    //router.get(METRICS_CONTEXT).handler(PrometheusScrapingHandler.create());
-    router.route("/metrics").handler(ctx -> {
+    router.get(METRICS_CONTEXT).handler(ctx -> {
       String response = registry.scrape();
       ctx.response().end(response);
     });
-
-    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
-    server
-      .requestHandler(router)
-      .listen(portNumber, ar -> {
-        if (ar.succeeded()) {
-          LOGGER.info("HTTP server running on port " + portNumber);
-          promise.complete();
-        } else {
-          LOGGER.error("Could not start a HTTP server", ar.cause());
-          promise.fail(ar.cause());
-        }
-      });
+    return router;
   }
 
   private HealthCheckHandler healthHandler() {
     HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
     healthCheckHandler.register("check-database", promise -> {
       dbService.isAvailable(res -> {
-          promise.complete(res.succeeded() ? Status.OK() : Status.KO());
+        promise.complete(res.succeeded() ? Status.OK() : Status.KO());
       });
     });
     return healthCheckHandler;
@@ -119,7 +118,6 @@ public class HttpServerVerticle extends AbstractVerticle {
 
 
   private void allFishsHandler(RoutingContext context) {
-
     dbService.fetchAllFishs(reply -> {
       if (reply.succeeded()) {
         JsonArray body = new JsonArray(reply.result().getList());

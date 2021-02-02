@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package com.bmeynier.article.vertx.fishs.database;
-
 /**
  * @author <a href="https://julien.ponge.org/">Julien Ponge</a>
  */
-public enum ErrorCodes {
-  NO_ACTION_SPECIFIED,
-  BAD_ACTION,
-  DB_ERROR
-}
+// tag::module[]
+@ModuleGen(groupPackage = "com.bmeynier.article.vertx.fishs.database.service", name = "fish-database")
+package com.bmeynier.article.vertx.fishs.database.service;
+
+import io.vertx.codegen.annotations.ModuleGen;
+// end::module[]

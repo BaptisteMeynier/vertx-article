@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-package com.bmeynier.article.vertx.fishs.database;
+package com.bmeynier.article.vertx.fishs.database.service;
+
 
 
 import io.vertx.codegen.annotations.Fluent;
