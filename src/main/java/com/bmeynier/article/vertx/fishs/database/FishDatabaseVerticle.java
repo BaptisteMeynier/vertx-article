@@ -11,11 +11,9 @@ import io.vertx.serviceproxy.ServiceBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Properties;
 
 public class FishDatabaseVerticle extends AbstractVerticle {
@@ -26,11 +24,6 @@ public class FishDatabaseVerticle extends AbstractVerticle {
   private static final String CONFIG_FISHDB_JDBC_MAX_POOL_SIZE = "db.jdbc.max_pool_size";
   private static final String CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE = "db.sqlqueries.resource.file";
   private static final String CONFIG_FISHDB_QUEUE = "fishdb.queue";
-  private static final ConfigStoreOptions conf = new ConfigStoreOptions()
-    .setType("file")
-    .setFormat("properties")
-    .setConfig(new JsonObject().put("path", "application.properties"));
-
 
   @Override
   public void start(Promise<Void> promise) throws Exception {
@@ -38,9 +31,9 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     HashMap<SqlQuery, String> sqlQueries = loadSqlQueries();
 
     JDBCClient dbClient = JDBCClient.createShared(vertx, new JsonObject()
-      .put("url", conf.getConfig().getString(CONFIG_FISHDB_JDBC_URL, "jdbc:hsqldb:file:db/fish"))
-      .put("driver_class", conf.getConfig().getString(CONFIG_FISHDB_JDBC_DRIVER_CLASS, "org.hsqldb.jdbcDriver"))
-      .put("max_pool_size", conf.getConfig().getInteger(CONFIG_FISHDB_JDBC_MAX_POOL_SIZE, 30)));
+      .put("url", config().getString(CONFIG_FISHDB_JDBC_URL, "jdbc:hsqldb:file:db/fish"))
+      .put("driver_class", config().getString(CONFIG_FISHDB_JDBC_DRIVER_CLASS, "org.hsqldb.jdbcDriver"))
+      .put("max_pool_size", config().getInteger(CONFIG_FISHDB_JDBC_MAX_POOL_SIZE, 30)));
 
     FishDatabaseService.create(dbClient, sqlQueries, ready -> {
       if (ready.succeeded()) {
@@ -56,7 +49,7 @@ public class FishDatabaseVerticle extends AbstractVerticle {
 
   private HashMap<SqlQuery, String> loadSqlQueries() throws IOException {
 
-    String queriesFile = conf.getConfig().getString(CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE, "/db-queries.properties");
+    String queriesFile = config().getString(CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE, "/db-queries.properties");
     InputStream queriesInputStream = getClass().getResourceAsStream(queriesFile);
 
 

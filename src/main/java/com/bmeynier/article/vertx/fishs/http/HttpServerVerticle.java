@@ -23,7 +23,6 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
 
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
@@ -31,6 +30,8 @@ import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.micrometer.MicrometerMetricsOptions;
+import io.vertx.micrometer.VertxPrometheusOptions;
 import io.vertx.micrometer.backends.BackendRegistries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +46,6 @@ public class HttpServerVerticle extends AbstractVerticle {
   public static final String HEALTH_CONTEXT = "/health*";
   public static final String METRICS_CONTEXT = "/metrics*";
   private static final String FISH_CONTEXT = "/fish";
-  private static final ConfigStoreOptions conf = new ConfigStoreOptions()
-    .setType("file")
-    .setFormat("properties")
-    .setConfig(new JsonObject().put("path", "application.properties"));
 
   private FishDatabaseService dbService;
 
@@ -56,8 +53,8 @@ public class HttpServerVerticle extends AbstractVerticle {
   public void start(Promise<Void> promise) {
     LOGGER.info("FISH SERVER VERTICLE");
 
-    String fishDbQueue = conf.getConfig().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
-    int portNumber = conf.getConfig().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
+    String fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
+    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8084);
 
     dbService = FishDatabaseService.createProxy(vertx, fishDbQueue);
 
@@ -75,7 +72,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   }
 
   private Router getRouter() {
-    PrometheusMeterRegistry registry = (PrometheusMeterRegistry) BackendRegistries.getDefaultNow();
+
     HealthCheckHandler healthCheckHandler = healthHandler();
 
     Router router = Router.router(vertx);
@@ -85,10 +82,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     router.put(FISH_CONTEXT).handler(this::fishModificationHandler);
     router.delete(FISH_CONTEXT).handler(this::fishDeleteHandler);
     router.get(HEALTH_CONTEXT).handler(healthCheckHandler);
-    router.get(METRICS_CONTEXT).handler(ctx -> {
-      String response = registry.scrape();
-      ctx.response().end(response);
-    });
+
     return router;
   }
 
