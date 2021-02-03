@@ -7,8 +7,10 @@ import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
-import io.vertx.micrometer.MicrometerMetricsOptions;
-import io.vertx.micrometer.VertxPrometheusOptions;
+import io.vertx.ext.shell.ShellService;
+import io.vertx.ext.shell.ShellServiceOptions;
+import io.vertx.ext.shell.term.TelnetTermOptions;
+
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -31,14 +33,14 @@ public class MainVerticle extends AbstractVerticle {
       });
     });
 
-   /* ShellService service = ShellService.create(vertx,
+    ShellService service = ShellService.create(vertx,
       new ShellServiceOptions().setTelnetOptions(
         new TelnetTermOptions().
           setHost("localhost").
           setPort(4000)
       )
     );
-    service.start();*/
+    service.start();
   }
 
   public static void main(String... args) {
