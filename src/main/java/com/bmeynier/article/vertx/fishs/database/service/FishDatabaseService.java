@@ -30,6 +30,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.jdbcclient.JDBCPool;
 
 import java.util.HashMap;
 
@@ -54,8 +55,8 @@ public interface FishDatabaseService {
   FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler);
 
   @GenIgnore
-  static FishDatabaseService create(JDBCClient dbClient, HashMap<SqlQuery, String> sqlQueries, Handler<AsyncResult<FishDatabaseService>> readyHandler) {
-    return new FishDatabaseServiceImpl(dbClient, sqlQueries, readyHandler);
+  static FishDatabaseService create(JDBCPool jdbcPool, HashMap<SqlQuery, String> sqlQueries, Handler<AsyncResult<FishDatabaseService>> readyHandler) {
+    return new FishDatabaseServiceImpl(jdbcPool, sqlQueries, readyHandler);
   }
 
   @GenIgnore

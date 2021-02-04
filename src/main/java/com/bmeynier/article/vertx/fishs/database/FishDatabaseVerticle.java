@@ -7,7 +7,10 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.jdbcclient.JDBCConnectOptions;
+import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.serviceproxy.ServiceBinder;
+import io.vertx.sqlclient.PoolOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +33,14 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     LOGGER.info("FISH DATABASE VERTICLE");
     HashMap<SqlQuery, String> sqlQueries = loadSqlQueries();
 
-    JDBCClient dbClient = JDBCClient.createShared(vertx, new JsonObject()
-      .put("url", config().getString(CONFIG_FISHDB_JDBC_URL, "jdbc:hsqldb:file:db/fish"))
-      .put("driver_class", config().getString(CONFIG_FISHDB_JDBC_DRIVER_CLASS, "org.hsqldb.jdbcDriver"))
-      .put("max_pool_size", config().getInteger(CONFIG_FISHDB_JDBC_MAX_POOL_SIZE, 30)));
+    JDBCConnectOptions jdbcConnectOptions = new JDBCConnectOptions().setJdbcUrl("jdbc:h2:target/db/fishs")
+      .setUser("sa")
+      .setPassword("");
 
-    FishDatabaseService.create(dbClient, sqlQueries, ready -> {
+    JDBCPool jdbcPool = JDBCPool.pool(vertx, jdbcConnectOptions, new PoolOptions().setMaxSize(16));
+
+
+    FishDatabaseService.create(jdbcPool, sqlQueries, ready -> {
       if (ready.succeeded()) {
         new ServiceBinder(vertx)
           .setAddress(CONFIG_FISHDB_QUEUE)
@@ -51,7 +56,6 @@ public class FishDatabaseVerticle extends AbstractVerticle {
 
     String queriesFile = config().getString(CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE, "/db-queries.properties");
     InputStream queriesInputStream = getClass().getResourceAsStream(queriesFile);
-
 
 
     Properties queriesProps = new Properties();
