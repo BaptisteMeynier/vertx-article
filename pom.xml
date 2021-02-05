@@ -17,7 +17,7 @@
     <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
     <scala-maven-plugin.version>4.4.0</scala-maven-plugin.version>
     <gatling.version>3.1.0</gatling.version>
-    <vertx.version>4.0.0</vertx.version>
+    <vertx.version>4.0.2</vertx.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
     <assertj-core.version>3.18.1</assertj-core.version>
     <micrometer.version>1.6.3</micrometer.version>
@@ -42,13 +42,8 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-codegen</artifactId>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.200</version>
-    </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-service-proxy</artifactId>
@@ -60,6 +55,11 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-jdbc-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.agroal</groupId>
+      <artifactId>agroal-pool</artifactId>
+      <version>1.9</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -82,6 +82,12 @@
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.11.3</version>
+      <scope>runtime</scope>
+    </dependency>
 
     <!-- DEVOPS -->
     <dependency>
@@ -97,6 +103,13 @@
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-jmx</artifactId>
       <version>${micrometer.version}</version>
+    </dependency>
+
+    <!-- EMBEDDED DATABASE -->
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.5.0</version>
     </dependency>
     <!-- TEST -->
     <dependency>

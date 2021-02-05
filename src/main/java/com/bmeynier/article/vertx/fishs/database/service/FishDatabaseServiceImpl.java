@@ -1,5 +1,7 @@
 package com.bmeynier.article.vertx.fishs.database.service;
 
+import com.bmeynier.article.vertx.fishs.domain.Fish;
+import com.bmeynier.article.vertx.fishs.domain.FishRowMapper;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -7,10 +9,13 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
+import io.vertx.sqlclient.templates.SqlTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 public class FishDatabaseServiceImpl implements FishDatabaseService {
@@ -36,15 +41,18 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   @Override
   public FishDatabaseService fetchAllFishs(Handler<AsyncResult<JsonArray>> resultHandler) {
     LOGGER.error("FETCH ALL");
-    jdbcPool.query(sqlQueries.get(SqlQuery.ALL_FISHS))
-      .execute()
-      .onSuccess(rows -> {
+    jdbcPool.query(sqlQueries.get(SqlQuery.ALL_FISHS)).execute()
+      .onSuccess( rows -> {
         JsonArray fishs = new JsonArray();
-        for (Row row : rows) {
-          fishs.add(row);
+        for(Row row :rows) {
+          fishs.add(
+            new JsonObject()
+              .put("id", row.getLong("ID"))
+              .put("name", row.getString("NAME"))
+          );
         }
         resultHandler.handle(Future.succeededFuture(fishs));
-      }).onFailure(res -> {
+      }).onFailure( res -> {
       LOGGER.error("Database query error", res.getCause());
       resultHandler.handle(Future.failedFuture(res.getCause()));
     });
@@ -52,9 +60,12 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   }
 
   @Override
-  public FishDatabaseService createFish(String name, Handler<AsyncResult<JsonArray>> resultHandler) {
-    jdbcPool.preparedQuery(sqlQueries.get(SqlQuery.CREATE_FISH))
-      .execute(Tuple.of(name))
+  public FishDatabaseService createFish(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Fish fish = new Fish(name);
+
+    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.CREATE_FISH))
+      .mapFrom(Fish.class)
+      .execute(fish)
       .onSuccess(
         row -> resultHandler.handle(Future.succeededFuture()))
       .onFailure(res -> {
@@ -66,14 +77,16 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
 
   @Override
   public FishDatabaseService modifyFish(int id, String name, Handler<AsyncResult<JsonArray>> resultHandler) {
-    jdbcPool.preparedQuery(sqlQueries.get(SqlQuery.SAVE_FISH))
-      .execute(Tuple.of(name, id))
-      .onSuccess(res -> {
-        resultHandler.handle(Future.succeededFuture());
-      }).onFailure(res -> {
-      LOGGER.error("Database query error", res.getCause());
-      resultHandler.handle(Future.failedFuture(res.getCause()));
-    });
+    Fish fish = new Fish(id, name);
+
+    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.SAVE_FISH))
+      .mapFrom(Fish.class)
+      .execute(fish)
+      .onSuccess(res -> resultHandler.handle(Future.succeededFuture()))
+      .onFailure(res -> {
+        LOGGER.error("Database query error", res.getCause());
+        resultHandler.handle(Future.failedFuture(res.getCause()));
+      });
     return this;
   }
 
@@ -81,10 +94,10 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonArray>> resultHandler) {
     jdbcPool.preparedQuery(sqlQueries.get(SqlQuery.DELETE_FISH))
       .execute(Tuple.of(name)).onSuccess(res -> {
-        resultHandler.handle(Future.succeededFuture());
-      }).onFailure(res -> {
-        LOGGER.error("Database query error", res.getCause());
-        resultHandler.handle(Future.failedFuture(res.getCause()));
+      resultHandler.handle(Future.succeededFuture());
+    }).onFailure(res -> {
+      LOGGER.error("Database query error", res.getCause());
+      resultHandler.handle(Future.failedFuture(res.getCause()));
     });
     return this;
   }

@@ -1,4 +1,0 @@
-/*C4*/SET SCHEMA PUBLIC
-create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)
-/*C6*/SET SCHEMA PUBLIC
-create table if not exists Fishs (id IDENTITY PRIMARY KEY, Name varchar(255) unique)

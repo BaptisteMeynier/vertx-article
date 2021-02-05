@@ -103,7 +103,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     dbService.modifyFish(id, name, reply -> {
       if (reply.succeeded()) {
-        routingContext.end("Change Fish " + id + " with name: " + name);
+        routingContext.end("Fish " + id + " with name: " + name + " was changed.");
       } else {
         routingContext.fail(reply.cause());
       }
@@ -125,11 +125,10 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   private void fishCreateHandler(RoutingContext context) {
     String name = context.request().getParam("name");
-
+    System.out.println(name);
     dbService.createFish(name, reply -> {
       if (reply.succeeded()) {
-        context.put("Result: ", reply.result().toString());
-        context.end();
+        context.response().end(  name + " fish was created.");
       } else {
         context.fail(reply.cause());
       }

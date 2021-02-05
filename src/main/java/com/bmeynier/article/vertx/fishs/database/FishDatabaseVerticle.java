@@ -5,8 +5,6 @@ import com.bmeynier.article.vertx.fishs.database.service.SqlQuery;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.jdbcclient.JDBCConnectOptions;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -23,7 +21,6 @@ public class FishDatabaseVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FishDatabaseVerticle.class);
   private static final String CONFIG_FISHDB_JDBC_URL = "db.jdbc.url";
-  private static final String CONFIG_FISHDB_JDBC_DRIVER_CLASS = "db.jdbc.driver_class";
   private static final String CONFIG_FISHDB_JDBC_MAX_POOL_SIZE = "db.jdbc.max_pool_size";
   private static final String CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE = "db.sqlqueries.resource.file";
   private static final String CONFIG_FISHDB_QUEUE = "fishdb.queue";
@@ -32,13 +29,15 @@ public class FishDatabaseVerticle extends AbstractVerticle {
   public void start(Promise<Void> promise) throws Exception {
     LOGGER.info("FISH DATABASE VERTICLE");
     HashMap<SqlQuery, String> sqlQueries = loadSqlQueries();
+    String jdbcUrl = config().getString(CONFIG_FISHDB_JDBC_URL, "jdbc:hsqldb:file:target/db/fish");
+    int poolSize = config().getInteger(CONFIG_FISHDB_JDBC_MAX_POOL_SIZE, 16);
 
-    JDBCConnectOptions jdbcConnectOptions = new JDBCConnectOptions().setJdbcUrl("jdbc:h2:target/db/fishs")
-      .setUser("sa")
-      .setPassword("");
+    JDBCConnectOptions jdbcConnectOptions = new JDBCConnectOptions()
+      .setJdbcUrl(jdbcUrl);
 
-    JDBCPool jdbcPool = JDBCPool.pool(vertx, jdbcConnectOptions, new PoolOptions().setMaxSize(16));
+    PoolOptions poolOptions = new PoolOptions().setMaxSize(poolSize);
 
+    JDBCPool jdbcPool = JDBCPool.pool(vertx, jdbcConnectOptions, poolOptions);
 
     FishDatabaseService.create(jdbcPool, sqlQueries, ready -> {
       if (ready.succeeded()) {
@@ -47,6 +46,7 @@ public class FishDatabaseVerticle extends AbstractVerticle {
           .register(FishDatabaseService.class, ready.result());
         promise.complete();
       } else {
+        System.out.println("ERROR HERE");
         promise.fail(ready.cause());
       }
     });
