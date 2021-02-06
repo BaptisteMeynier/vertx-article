@@ -1,6 +1,7 @@
 package com.bmeynier.article.vertx.fishs.domain;
 
 import io.vertx.codegen.annotations.DataObject;
+import io.vertx.sqlclient.templates.annotations.Column;
 import io.vertx.sqlclient.templates.annotations.RowMapped;
 
 import java.util.Objects;
@@ -8,7 +9,9 @@ import java.util.Objects;
 @RowMapped
 @DataObject
 public class Fish {
+  @Column(name="ID")
   private long id;
+  @Column(name="NAME")
   private String name;
 
   public Fish() {

@@ -48,7 +48,7 @@ public interface FishDatabaseService {
   FishDatabaseService modifyFish(int id, String name, Handler<AsyncResult<JsonArray>> resultHandler);
 
   @Fluent
-  FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonArray>> resultHandler);
+  FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonObject>> resultHandler);
 
   @Fluent
   FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler);

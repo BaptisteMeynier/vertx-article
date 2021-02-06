@@ -8,15 +8,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
-import io.vertx.sqlclient.Tuple;
 import io.vertx.sqlclient.templates.SqlTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class FishDatabaseServiceImpl implements FishDatabaseService {
 
@@ -41,18 +39,16 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   @Override
   public FishDatabaseService fetchAllFishs(Handler<AsyncResult<JsonArray>> resultHandler) {
     LOGGER.error("FETCH ALL");
-    jdbcPool.query(sqlQueries.get(SqlQuery.ALL_FISHS)).execute()
-      .onSuccess( rows -> {
+    SqlTemplate.forQuery(jdbcPool, sqlQueries.get(SqlQuery.ALL_FISHS))
+      .mapTo(FishRowMapper.INSTANCE)
+      .execute(Collections.emptyMap())
+      .onSuccess(rows -> {
         JsonArray fishs = new JsonArray();
-        for(Row row :rows) {
-          fishs.add(
-            new JsonObject()
-              .put("id", row.getLong("ID"))
-              .put("name", row.getString("NAME"))
-          );
+        for (Fish aFish : rows) {
+          fishs.add(JsonObject.mapFrom(aFish));
         }
         resultHandler.handle(Future.succeededFuture(fishs));
-      }).onFailure( res -> {
+      }).onFailure(res -> {
       LOGGER.error("Database query error", res.getCause());
       resultHandler.handle(Future.failedFuture(res.getCause()));
     });
@@ -91,11 +87,12 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   }
 
   @Override
-  public FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonArray>> resultHandler) {
-    jdbcPool.preparedQuery(sqlQueries.get(SqlQuery.DELETE_FISH))
-      .execute(Tuple.of(name)).onSuccess(res -> {
-      resultHandler.handle(Future.succeededFuture());
-    }).onFailure(res -> {
+  public FishDatabaseService deleteFish(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
+    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.DELETE_FISH))
+      .execute(Map.of("name", name))
+      .onSuccess(res -> {
+        resultHandler.handle(Future.succeededFuture());
+      }).onFailure(res -> {
       LOGGER.error("Database query error", res.getCause());
       resultHandler.handle(Future.failedFuture(res.getCause()));
     });

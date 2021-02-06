@@ -46,7 +46,6 @@ public class FishDatabaseVerticle extends AbstractVerticle {
           .register(FishDatabaseService.class, ready.result());
         promise.complete();
       } else {
-        System.out.println("ERROR HERE");
         promise.fail(ready.cause());
       }
     });
