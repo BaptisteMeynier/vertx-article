@@ -3,6 +3,7 @@ package com.bmeynier.article.vertx.fishs;
 import com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle;
 import com.bmeynier.article.vertx.fishs.domain.Fish;
 import com.bmeynier.article.vertx.fishs.http.HttpServerVerticle;
+import io.gatling.app.cli.StatusCode;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -18,7 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StockEventScenarioTest {
 
-  public static final int TEST_PORT = 8080;
+  public static final int PORT = 8080;
+  public static final String HOST = "localhost";
+  public static final String APPLICATION_CONTEXT = "/fish";
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
@@ -31,7 +34,7 @@ public class StockEventScenarioTest {
   @Test
   void it_should_remove_all_data(Vertx vertx, VertxTestContext testContext) {
 
-    WebClient.create(vertx).delete(8080, "localhost", "/fish")
+    WebClient.create(vertx).delete(PORT, HOST, APPLICATION_CONTEXT)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.statusCode()).isEqualTo(200);
@@ -43,7 +46,7 @@ public class StockEventScenarioTest {
   @RepeatedTest(3)
   void it_should_not_get_fish_when_data_base_is_empty(Vertx vertx, VertxTestContext testContext) {
     WebClient client = WebClient.create(vertx);
-    client.get(TEST_PORT, "localhost", "/fish")
+    client.get(PORT, HOST, APPLICATION_CONTEXT)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.body()).isEqualTo("[]");
@@ -54,10 +57,10 @@ public class StockEventScenarioTest {
 
   @Order(3)
   @Test
-  void it_should_insert_data(Vertx vertx, VertxTestContext testContext) {
-    Fish fish = new Fish("Scalare");
+  void it_should_insert_fish(Vertx vertx, VertxTestContext testContext) {
+    String fishName = "Scalare";
     WebClient client = WebClient.create(vertx);
-    client.post(TEST_PORT, "localhost", "/fish")
+    client.post(PORT, HOST, APPLICATION_CONTEXT + "?name=" + fishName)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.body()).isNotBlank();
@@ -68,13 +71,12 @@ public class StockEventScenarioTest {
   @RepeatedTest(2)
   @Order(4)
   void it_should_not_insert_fish_with_same_name(Vertx vertx, VertxTestContext testContext) {
-    //GIVEN
-    Fish fish = new Fish("Discus");
+    String fishName = "Discus";
     WebClient client = WebClient.create(vertx);
-    client.post(TEST_PORT, "localhost", "/fish")
+    client.post(PORT, HOST, APPLICATION_CONTEXT  + "?name=" + fishName)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
-        assertThat(response.body()).isNotBlank();
+        assertThat(response.statusCode()).isNotEqualTo(200);
         testContext.completeNow();
       })));
   }
@@ -84,7 +86,7 @@ public class StockEventScenarioTest {
   void it_should_find_fishs(Vertx vertx, VertxTestContext testContext) {
     //GIVEN
     WebClient client = WebClient.create(vertx);
-    client.get(TEST_PORT, "localhost", "/fish")
+    client.get(PORT, HOST, APPLICATION_CONTEXT)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.body()).isNotBlank();
@@ -96,7 +98,7 @@ public class StockEventScenarioTest {
   @Test
   void it_should_delete_fish_by_name(Vertx vertx, VertxTestContext testContext) {
     WebClient client = WebClient.create(vertx);
-    client.delete(TEST_PORT, "localhost", "/fish?name=Scalare")
+    client.delete(PORT, HOST, "/fish?name=Scalare")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.body()).isNotBlank();
