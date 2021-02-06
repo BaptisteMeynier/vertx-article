@@ -22,5 +22,6 @@ public enum SqlQuery {
   ALL_FISHS,
   CREATE_FISH,
   SAVE_FISH,
-  DELETE_FISH;
+  DELETE_FISH,
+  DELETE_ALL_FISHS;
 }

@@ -24,17 +24,15 @@ import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
 
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.micrometer.MicrometerMetricsOptions;
-import io.vertx.micrometer.VertxPrometheusOptions;
-import io.vertx.micrometer.backends.BackendRegistries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 
 public class HttpServerVerticle extends AbstractVerticle {
@@ -44,7 +42,6 @@ public class HttpServerVerticle extends AbstractVerticle {
   public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
   public static final String CONFIG_FISHDB_QUEUE = "bus.db";
   public static final String HEALTH_CONTEXT = "/health*";
-  public static final String METRICS_CONTEXT = "/metrics*";
   private static final String FISH_CONTEXT = "/fish";
 
   private FishDatabaseService dbService;
@@ -54,7 +51,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     LOGGER.info("FISH SERVER VERTICLE");
 
     String fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
-    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8084);
+    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
 
     dbService = FishDatabaseService.createProxy(vertx, fishDbQueue);
 
@@ -128,7 +125,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     dbService.createFish(name, reply -> {
       if (reply.succeeded()) {
-        context.response().end(  name + " fish was created.");
+        context.response().end(name + " fish was created.");
       } else {
         context.fail(reply.cause());
       }
@@ -139,14 +136,23 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void fishDeleteHandler(RoutingContext context) {
     String name = context.request().getParam("name");
 
-    dbService.deleteFish(name, reply -> {
-      if (reply.succeeded()) {
-        context.end("Delete " + name);
-      } else {
-        context.fail(reply.cause());
-      }
-    });
-
+    if (Objects.isNull(name)) {
+      dbService.deleteAllFishs(reply -> {
+        if (reply.succeeded()) {
+          context.end("Delete all fishs ");
+        } else {
+          context.fail(reply.cause());
+        }
+      });
+    } else {
+      dbService.deleteFish(name, reply -> {
+        if (reply.succeeded()) {
+          context.end("Delete " + name);
+        } else {
+          context.fail(reply.cause());
+        }
+      });
+    }
   }
 
 

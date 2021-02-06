@@ -56,7 +56,6 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     String queriesFile = config().getString(CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE, "/db-queries.properties");
     InputStream queriesInputStream = getClass().getResourceAsStream(queriesFile);
 
-
     Properties queriesProps = new Properties();
     queriesProps.load(queriesInputStream);
     queriesInputStream.close();
@@ -67,6 +66,8 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     sqlQueries.put(SqlQuery.CREATE_FISH, queriesProps.getProperty("create-fish"));
     sqlQueries.put(SqlQuery.SAVE_FISH, queriesProps.getProperty("save-fish"));
     sqlQueries.put(SqlQuery.DELETE_FISH, queriesProps.getProperty("delete-fish"));
+    sqlQueries.put(SqlQuery.DELETE_ALL_FISHS, queriesProps.getProperty("delete-all-fishs"));
+
     return sqlQueries;
   }
 }

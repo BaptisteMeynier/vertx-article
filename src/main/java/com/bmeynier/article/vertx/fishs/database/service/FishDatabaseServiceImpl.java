@@ -100,6 +100,19 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   }
 
   @Override
+  public FishDatabaseService deleteAllFishs(Handler<AsyncResult<JsonObject>> resultHandler) {
+    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.DELETE_ALL_FISHS))
+      .execute(Collections.emptyMap())
+      .onSuccess(res -> {
+        resultHandler.handle(Future.succeededFuture());
+      }).onFailure(res -> {
+      LOGGER.error("Database query error", res.getCause());
+      resultHandler.handle(Future.failedFuture(res.getCause()));
+    });
+    return this;
+  }
+
+  @Override
   public FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler) {
     jdbcPool.getConnection(res -> {
       if (res.succeeded()) {

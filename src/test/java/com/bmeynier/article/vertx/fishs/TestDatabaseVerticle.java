@@ -1,6 +1,7 @@
 package com.bmeynier.article.vertx.fishs;
 
 import com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle;
+import com.bmeynier.article.vertx.fishs.domain.Fish;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -32,4 +33,16 @@ public class TestDatabaseVerticle {
   void verticle_deployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
     testContext.completeNow();
   }
+
+
+  @Test
+  void it_should_insert_fish(Vertx vertx, VertxTestContext testContext) {
+    // GIVEN
+    Fish fish = new Fish("Discus");
+    // WHEN
+
+    // THEN
+  }
+
+
 }
