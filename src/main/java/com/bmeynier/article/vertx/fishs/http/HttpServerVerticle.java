@@ -23,7 +23,10 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
 
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.tracing.TracingPolicy;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
@@ -53,9 +56,13 @@ public class HttpServerVerticle extends AbstractVerticle {
     String fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
     int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
 
-    dbService = FishDatabaseService.createProxy(vertx, fishDbQueue);
+    DeliveryOptions deliveryOptions = new DeliveryOptions().setTracingPolicy(TracingPolicy.ALWAYS);
 
-    vertx.createHttpServer()
+    dbService = FishDatabaseService.createProxy(vertx, fishDbQueue, deliveryOptions);
+
+    HttpServerOptions httpServerOptions = new HttpServerOptions().setTracingPolicy(TracingPolicy.ALWAYS);
+
+    vertx.createHttpServer(httpServerOptions)
       .requestHandler(getRouter())
       .listen(portNumber)
       .onSuccess(res -> {

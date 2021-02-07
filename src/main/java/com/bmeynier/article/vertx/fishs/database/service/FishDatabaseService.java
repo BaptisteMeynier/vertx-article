@@ -18,7 +18,6 @@
 package com.bmeynier.article.vertx.fishs.database.service;
 
 
-
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
@@ -27,6 +26,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
@@ -63,8 +63,8 @@ public interface FishDatabaseService {
   }
 
   @GenIgnore
-  static FishDatabaseService createProxy(Vertx vertx, String address) {
-    return new FishDatabaseServiceVertxEBProxy(vertx, address);
+  static FishDatabaseService createProxy(Vertx vertx, String address, DeliveryOptions options) {
+    return new FishDatabaseServiceVertxEBProxy(vertx, address, options);
   }
 
 }

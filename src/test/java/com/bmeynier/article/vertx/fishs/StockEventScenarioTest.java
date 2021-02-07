@@ -1,9 +1,7 @@
 package com.bmeynier.article.vertx.fishs;
 
 import com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle;
-import com.bmeynier.article.vertx.fishs.domain.Fish;
 import com.bmeynier.article.vertx.fishs.http.HttpServerVerticle;
-import io.gatling.app.cli.StatusCode;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -54,7 +52,6 @@ public class StockEventScenarioTest {
       })));
   }
 
-
   @Order(3)
   @Test
   void it_should_insert_fish(Vertx vertx, VertxTestContext testContext) {
@@ -68,21 +65,21 @@ public class StockEventScenarioTest {
       })));
   }
 
-  @RepeatedTest(2)
+  @Test
   @Order(4)
   void it_should_not_insert_fish_with_same_name(Vertx vertx, VertxTestContext testContext) {
-    String fishName = "Discus";
+    String fishName = "Scalare";
     WebClient client = WebClient.create(vertx);
     client.post(PORT, HOST, APPLICATION_CONTEXT  + "?name=" + fishName)
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
-        assertThat(response.statusCode()).isNotEqualTo(200);
+        assertThat(response.statusCode()).isEqualTo(500);
         testContext.completeNow();
       })));
   }
 
   @Order(5)
-  @Test
+  @RepeatedTest(2)
   void it_should_find_fishs(Vertx vertx, VertxTestContext testContext) {
     //GIVEN
     WebClient client = WebClient.create(vertx);
