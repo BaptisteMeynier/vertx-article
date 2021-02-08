@@ -26,12 +26,15 @@ import io.vertx.core.*;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.tracing.TracingPolicy;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.openapi.RouterBuilder;
+import io.vertx.ext.web.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +48,106 @@ public class HttpServerVerticle extends AbstractVerticle {
   public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
   public static final String CONFIG_FISHDB_QUEUE = "bus.db";
   public static final String HEALTH_CONTEXT = "/health*";
-  private static final String FISH_CONTEXT = "/fish";
+  private static final String FISH_CONTEXT = "/fishs";
 
   private FishDatabaseService dbService;
 
   @Override
   public void start(Promise<Void> promise) {
+    LOGGER.info("FISH SERVER VERTICLE");
+
+    String fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");
+    int portNumber = config().getInteger(CONFIG_HTTP_SERVER_PORT, 8080);
+
+    DeliveryOptions deliveryOptions = new DeliveryOptions().setTracingPolicy(TracingPolicy.ALWAYS);
+
+    dbService = FishDatabaseService.createProxy(vertx, fishDbQueue, deliveryOptions);
+
+    RouterBuilder.create(vertx, "src/main/resources/fishStore.yaml").onComplete(ar -> {
+      if (ar.succeeded()) {
+        RouterBuilder routerBuilder = ar.result();
+        routerBuilder
+          .operation("listFishs")
+          .handler(routingContext->{
+            RequestParameters params = routingContext.get(ValidationHandler.REQUEST_CONTEXT_KEY);
+            this.allFishsHandler(routingContext);})
+          .failureHandler(routingContext -> {
+            System.out.println("An error during requesting fishs");
+          });
+
+        routerBuilder.operation("createFish")
+          .handler(routingContext -> {
+            RequestParameters params = routingContext.get(ValidationHandler.REQUEST_CONTEXT_KEY);
+          /*  RequestParameter body = params.body();
+            JsonObject jsonBody = body.getJsonObject();*/
+            this.fishCreateHandler(routingContext);
+          })
+          .failureHandler(routingContext -> {
+            if (routingContext.failure() instanceof BadRequestException) {
+              if (routingContext.failure() instanceof ParameterProcessorException) {
+                // Something went wrong while parsing/validating a parameter
+              } else if (routingContext.failure() instanceof BodyProcessorException) {
+                // Something went wrong while parsing/validating the body
+              } else if (routingContext.failure() instanceof RequestPredicateException) {
+                // A request predicate is unsatisfied
+              }
+            }
+            System.out.println("An error during creation");
+          });
+
+        routerBuilder.operation("modifyFish")
+          .handler(routingContext -> {
+          /*  RequestParameters params = routingContext.get(ValidationHandler.REQUEST_CONTEXT_KEY);
+            RequestParameter body = params.body();
+            JsonObject jsonBody = body.getJsonObject();*/
+            this.fishModificationHandler(routingContext);
+          })
+          .failureHandler(routingContext -> {
+            System.out.println("An error during modification");
+            // Handle failure
+          });
+
+        routerBuilder.operation("deleteFishs")
+          .handler(routingContext -> {
+            /*RequestParameters params = routingContext.get(ValidationHandler.REQUEST_CONTEXT_KEY);
+            RequestParameter body = params.body();
+            JsonObject jsonBody = body.getJsonObject();*/
+            this.fishDeleteHandler(routingContext);
+          })
+          .failureHandler(routingContext -> {
+            System.out.println("An error during deletion");
+            // Handle failure
+          });
+
+        Router global = Router.router(vertx);
+
+        Router generated = routerBuilder.createRouter();
+        global.mountSubRouter("/v1", generated);
+
+        vertx.createHttpServer()
+          .requestHandler(global)
+          .listen(portNumber)
+          .onSuccess(res -> {
+            LOGGER.info("HTTP server running on port " + portNumber);
+            promise.complete();
+          }).onFailure(err -> {
+            LOGGER.error("Could not start a HTTP server", err.getCause());
+            promise.fail(err.getCause());
+          }
+        );
+
+      } else {
+        // Something went wrong during router builder initialization
+        Throwable exception = ar.cause();
+      }
+
+
+    });
+
+
+  }
+
+  public void start1(Promise<Void> promise) {
     LOGGER.info("FISH SERVER VERTICLE");
 
     String fishDbQueue = config().getString(CONFIG_FISHDB_QUEUE, "fishdb.queue");

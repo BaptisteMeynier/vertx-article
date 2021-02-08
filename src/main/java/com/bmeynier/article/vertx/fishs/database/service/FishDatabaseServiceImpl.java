@@ -8,6 +8,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.jdbcclient.JDBCPool;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.templates.SqlTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +77,7 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService modifyFish(int id, String name, Handler<AsyncResult<JsonArray>> resultHandler) {
     Fish fish = new Fish(id, name);
 
-    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.SAVE_FISH))
+    SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.MODIFY_FISH))
       .mapFrom(Fish.class)
       .execute(fish)
       .onSuccess(res -> resultHandler.handle(Future.succeededFuture()))
@@ -105,6 +107,38 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
       .execute(Collections.emptyMap())
       .onSuccess(res -> {
         resultHandler.handle(Future.succeededFuture());
+      }).onFailure(res -> {
+      LOGGER.error("Database query error", res.getCause());
+      resultHandler.handle(Future.failedFuture(res.getCause()));
+    });
+    return this;
+  }
+
+  @Override
+  public FishDatabaseService existFishById(long id, Handler<AsyncResult<JsonObject>> resultHandler) {
+    SqlTemplate.forQuery(jdbcPool, sqlQueries.get(SqlQuery.EXISTING_FISH_ID))
+      .execute(Map.of("id", id))
+      .onSuccess(res -> {
+        Integer count = res.value().iterator().next().getInteger(1);
+        boolean exist = count == 0;
+        JsonObject jsonObject = new JsonObject().put("exist", exist);
+        resultHandler.handle(Future.succeededFuture(jsonObject));
+      }).onFailure(res -> {
+      LOGGER.error("Database query error", res.getCause());
+      resultHandler.handle(Future.failedFuture(res.getCause()));
+    });
+    return this;
+  }
+
+  @Override
+  public FishDatabaseService existFishByName(String fishName, Handler<AsyncResult<JsonObject>> resultHandler) {
+    SqlTemplate.forQuery(jdbcPool, sqlQueries.get(SqlQuery.EXISTING_FISH_NAME))
+      .execute(Map.of("name", fishName))
+      .onSuccess(res -> {
+        Integer count = res.value().iterator().next().getInteger(1);
+        boolean exist = count == 0;
+        JsonObject jsonObject = new JsonObject().put("exist", exist);
+        resultHandler.handle(Future.succeededFuture(jsonObject));
       }).onFailure(res -> {
       LOGGER.error("Database query error", res.getCause());
       resultHandler.handle(Future.failedFuture(res.getCause()));

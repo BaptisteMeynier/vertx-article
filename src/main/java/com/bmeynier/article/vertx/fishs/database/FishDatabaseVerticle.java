@@ -2,7 +2,6 @@ package com.bmeynier.article.vertx.fishs.database;
 
 import com.bmeynier.article.vertx.fishs.database.service.FishDatabaseService;
 import com.bmeynier.article.vertx.fishs.database.service.SqlQuery;
-import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.jdbcclient.JDBCConnectOptions;
@@ -64,7 +63,9 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     sqlQueries.put(SqlQuery.CREATE_FISHS_TABLE, queriesProps.getProperty("create-fishs-table"));
     sqlQueries.put(SqlQuery.ALL_FISHS, queriesProps.getProperty("all-fishs"));
     sqlQueries.put(SqlQuery.CREATE_FISH, queriesProps.getProperty("create-fish"));
-    sqlQueries.put(SqlQuery.SAVE_FISH, queriesProps.getProperty("save-fish"));
+    sqlQueries.put(SqlQuery.EXISTING_FISH_ID, queriesProps.getProperty("existing-fish-id"));
+    sqlQueries.put(SqlQuery.EXISTING_FISH_NAME, queriesProps.getProperty("existing-fish-name"));
+    sqlQueries.put(SqlQuery.MODIFY_FISH, queriesProps.getProperty("modify-fish"));
     sqlQueries.put(SqlQuery.DELETE_FISH, queriesProps.getProperty("delete-fish"));
     sqlQueries.put(SqlQuery.DELETE_ALL_FISHS, queriesProps.getProperty("delete-all-fishs"));
 

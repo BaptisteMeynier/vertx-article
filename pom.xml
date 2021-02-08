@@ -89,6 +89,13 @@
       <scope>runtime</scope>
     </dependency>
 
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-validation</artifactId>
+    </dependency>
+
+
     <!-- DEVOPS -->
     <dependency>
       <groupId>io.vertx</groupId>
@@ -107,6 +114,10 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-opentracing</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-openapi</artifactId>
     </dependency>
 
 

@@ -53,6 +53,11 @@ public interface FishDatabaseService {
   @Fluent
   FishDatabaseService deleteAllFishs(Handler<AsyncResult<JsonObject>> resultHandler);
 
+  @Fluent
+  FishDatabaseService existFishById(long id, Handler<AsyncResult<JsonObject>> resultHandler);
+
+  @Fluent
+  FishDatabaseService existFishByName(String fishName, Handler<AsyncResult<JsonObject>> resultHandler);
 
   @Fluent
   FishDatabaseService isAvailable(Handler<AsyncResult<JsonObject>> resultHandler);

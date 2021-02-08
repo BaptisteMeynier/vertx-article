@@ -33,7 +33,17 @@ public class FishLauncher extends Launcher {
       .setEnabled(true));
 
     //JAEGER
-    options.setTracingOptions(new OpenTracingOptions());
+    Configuration.SamplerConfiguration samplerConfig = Configuration.SamplerConfiguration.fromEnv()
+      .withType(ConstSampler.TYPE)
+      .withParam(1);
+
+    Configuration.ReporterConfiguration reporterConfig = new Configuration.ReporterConfiguration()
+      .withLogSpans(true);
+
+    Configuration config = new Configuration("FishService")
+      .withSampler(samplerConfig)
+      .withReporter(reporterConfig);
+    options.setTracingOptions(new OpenTracingOptions(config.getTracer()));
   }
 
   @Override

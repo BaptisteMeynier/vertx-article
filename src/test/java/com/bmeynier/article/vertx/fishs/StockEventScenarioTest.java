@@ -19,7 +19,7 @@ public class StockEventScenarioTest {
 
   public static final int PORT = 8080;
   public static final String HOST = "localhost";
-  public static final String APPLICATION_CONTEXT = "/fish";
+  public static final String APPLICATION_CONTEXT = "/v1/fishs";
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
