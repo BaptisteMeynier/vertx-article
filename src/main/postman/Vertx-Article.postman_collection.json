@@ -9,15 +9,26 @@
 			"name": "Create",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"Clown\"}"
+				},
 				"url": {
-					"raw": "localhost:8080/fish?name=Clown",
+					"raw": "localhost:8080/v1/fishs?name=Clown",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"fish"
+						"v1",
+						"fishs"
 					],
 					"query": [
 						{
@@ -35,13 +46,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/fish",
+					"raw": "localhost:8080/v1/fishs",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"fish"
+						"v1",
+						"fishs"
 					]
 				}
 			},
