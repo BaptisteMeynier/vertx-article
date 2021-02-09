@@ -32,11 +32,13 @@ paths:
       operationId: createFish
       tags:
         - fishs
-      requestBody:
-        content:
-          "application/json":
-            schema:
-              type: string
+      parameters:
+        - name: fishName
+          in: query
+          description: Restrict fish detail by name
+          required: false
+          schema:
+            type: string
       responses:
         201:
           description: Null response
@@ -53,7 +55,7 @@ paths:
           schema:
             type: integer
             format: int32
-        - name: fishName
+        - name: name
           in: query
           description: new name of the fish
           required: true

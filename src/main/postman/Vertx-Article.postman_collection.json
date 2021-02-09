@@ -65,18 +65,19 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/fish?name=Clown",
+					"raw": "localhost:8080/v1/fishs?name=Mimi",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"fish"
+						"v1",
+						"fishs"
 					],
 					"query": [
 						{
 							"key": "name",
-							"value": "Clown"
+							"value": "Mimi"
 						}
 					]
 				}
@@ -89,18 +90,19 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/fish?id=4&name=Mimi",
+					"raw": "localhost:8080/v1/fishs?id=0&name=Mimi",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"fish"
+						"v1",
+						"fishs"
 					],
 					"query": [
 						{
 							"key": "id",
-							"value": "4"
+							"value": "0"
 						},
 						{
 							"key": "name",
