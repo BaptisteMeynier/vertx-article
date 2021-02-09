@@ -29,6 +29,7 @@ import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
 import io.vertx.ext.web.validation.*;
 import org.slf4j.Logger;
@@ -44,6 +45,8 @@ public class HttpServerVerticle extends AbstractVerticle {
   public static final String CONFIG_HTTP_SERVER_PORT = "http.server.port";
   public static final String CONFIG_FISHDB_QUEUE = "bus.db";
   public static final String HEALTH_CONTEXT = "/health*";
+  public static final String SWAGGER_CONTEXT = "/swagger-ui*";
+  public static final String API_VERSION = "/v1";
 
   private FishDatabaseService dbService;
 
@@ -58,7 +61,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     dbService = FishDatabaseService.createProxy(vertx, fishDbQueue, deliveryOptions);
 
-    RouterBuilder.create(vertx, "src/main/resources/fishStore.yaml").onComplete(ar -> {
+    RouterBuilder.create(vertx, "src/main/resources/webroot/fishStore.yaml").onComplete(ar -> {
       if (ar.succeeded()) {
         Router global = this.getOpenApiRouter(ar.result());
 
@@ -115,12 +118,13 @@ public class HttpServerVerticle extends AbstractVerticle {
     Router global = Router.router(vertx);
 
     Router generated = routerBuilder.createRouter();
-    global.mountSubRouter("/v1", generated);
+    global.mountSubRouter(API_VERSION, generated);
 
     HealthCheckHandler healthCheckHandler = healthHandler();
-    generated.get(HEALTH_CONTEXT).handler(healthCheckHandler);
+    global.get(HEALTH_CONTEXT).handler(healthCheckHandler);
+    global.get(SWAGGER_CONTEXT).handler(StaticHandler.create());
 
-    return generated;
+    return global;
   }
 
   private HealthCheckHandler healthHandler() {
