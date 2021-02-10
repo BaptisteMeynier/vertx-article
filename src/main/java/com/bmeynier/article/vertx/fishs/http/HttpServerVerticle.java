@@ -94,7 +94,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         // A request predicate is unsatisfied
       }
     }
-    LOGGER.error("An error occur during request validating");
+    LOGGER.error("An error occur during request validating" + routingContext.failure());
   }
 
   private Router getOpenApiRouter(RouterBuilder routerBuilder) {
