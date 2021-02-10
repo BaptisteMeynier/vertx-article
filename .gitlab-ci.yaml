@@ -1,0 +1,38 @@
+image: maven:3-jdk-11
+
+stages:
+  - build
+  - test
+  - coverage
+  - deploy
+
+variables:
+  MAVEN_CLI_OPTS: " --batch-mode"
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean compile
+
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report
+
+coverage:
+  stage: coverage
+  script:
+    - cat target/site/jacoco/index.html
+  coverage: '/Total.*?([0-9]{1,3})%/'
+
+publish-artifact:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy -DskipTests -s ci_settings.xml
+  only:
+    - master

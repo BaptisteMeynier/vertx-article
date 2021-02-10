@@ -23,8 +23,25 @@
     <micrometer.version>1.6.3</micrometer.version>
     <main.verticle>com.bmeynier.article.vertx.fishs.MainVerticle</main.verticle>
     <vertx.launcher>com.bmeynier.article.vertx.fishs.FishLauncher</vertx.launcher>
-    <!--vertx.launcher>io.vertx.core.Launcher</vertx.launcher-->
   </properties>
+
+  <repositories>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </repository>
+  </repositories>
+  <distributionManagement>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </repository>
+    <snapshotRepository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+    </snapshotRepository>
+  </distributionManagement>
+
 
   <dependencyManagement>
     <dependencies>

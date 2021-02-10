@@ -19,11 +19,13 @@ package com.bmeynier.article.vertx.fishs.http;
 
 
 import com.bmeynier.article.vertx.fishs.database.service.FishDatabaseService;
+import com.bmeynier.article.vertx.fishs.domain.FishError;
 import io.vertx.core.*;
 
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonArray;
 
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.tracing.TracingPolicy;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
@@ -94,6 +96,10 @@ public class HttpServerVerticle extends AbstractVerticle {
         // A request predicate is unsatisfied
       }
     }
+    FishError error = new FishError();
+    error.setCode(routingContext.failure().getMessage());
+    error.setMessage(routingContext.failure().getCause().toString());
+    routingContext.response().setStatusCode(500).end(JsonObject.mapFrom(error).encodePrettily());
     LOGGER.error("An error occur during request validating" + routingContext.failure());
   }
 
