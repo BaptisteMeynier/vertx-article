@@ -1,6 +1,6 @@
 package com.bmeynier.article.vertx.fishs;
 
-import com.bmeynier.article.vertx.fishs.http.HttpServerVerticle;
+
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -25,7 +25,7 @@ public class TestMainVerticle {
   @RepeatedTest(2)
   void http_server_check_response(Vertx vertx, VertxTestContext testContext) {
     WebClient client = WebClient.create(vertx);
-    client.get(8080, "127.0.0.1", "/fish")
+    client.get(8080, "127.0.0.1", "/v1/fishs")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertThat(response.body()).isEmpty();

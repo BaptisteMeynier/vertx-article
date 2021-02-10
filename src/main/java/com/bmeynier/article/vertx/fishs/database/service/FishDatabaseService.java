@@ -72,4 +72,9 @@ public interface FishDatabaseService {
     return new FishDatabaseServiceVertxEBProxy(vertx, address, options);
   }
 
+  @GenIgnore
+  static FishDatabaseService createProxy(Vertx vertx, String address) {
+    return new FishDatabaseServiceVertxEBProxy(vertx, address);
+  }
+
 }

@@ -34,6 +34,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
 import io.vertx.ext.web.validation.*;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,14 +81,19 @@ public class HttpServerVerticle extends AbstractVerticle {
         );
 
       } else {
-        // Something went wrong during router builder initialization
         Throwable exception = ar.cause();
+        LOGGER.error("Something went wrong during router builder initialization", exception.getCause());
       }
     });
   }
 
   public void faillureHandler(RoutingContext routingContext) {
+    int httpStatus = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+    FishError error = new FishError();
+    error.setCode(routingContext.failure().getMessage());
+    error.setMessage(routingContext.failure().getStackTrace().toString());
     if (routingContext.failure() instanceof BadRequestException) {
+      httpStatus = HttpStatus.SC_BAD_REQUEST;
       if (routingContext.failure() instanceof ParameterProcessorException) {
         // Something went wrong while parsing/validating a parameter
       } else if (routingContext.failure() instanceof BodyProcessorException) {
@@ -96,10 +102,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         // A request predicate is unsatisfied
       }
     }
-    FishError error = new FishError();
-    error.setCode(routingContext.failure().getMessage());
-    error.setMessage(routingContext.failure().getCause().toString());
-    routingContext.response().setStatusCode(500).end(JsonObject.mapFrom(error).encodePrettily());
+
+    routingContext.response().setStatusCode(httpStatus).end(JsonObject.mapFrom(error).encodePrettily());
     LOGGER.error("An error occur during request validating" + routingContext.failure());
   }
 

@@ -105,12 +105,11 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService deleteAllFishs(Handler<AsyncResult<JsonObject>> resultHandler) {
     SqlTemplate.forUpdate(jdbcPool, sqlQueries.get(SqlQuery.DELETE_ALL_FISHS))
       .execute(Collections.emptyMap())
-      .onSuccess(res -> {
-        resultHandler.handle(Future.succeededFuture());
-      }).onFailure(res -> {
-      LOGGER.error("Database query error", res.getCause());
-      resultHandler.handle(Future.failedFuture(res.getCause()));
-    });
+      .onSuccess(res -> resultHandler.handle(Future.succeededFuture()))
+      .onFailure(res -> {
+        LOGGER.error("Database query error", res.getCause());
+        resultHandler.handle(Future.failedFuture(res.getCause()));
+      });
     return this;
   }
 
@@ -118,15 +117,11 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService existFishById(long id, Handler<AsyncResult<JsonObject>> resultHandler) {
     SqlTemplate.forQuery(jdbcPool, sqlQueries.get(SqlQuery.EXISTING_FISH_ID))
       .execute(Map.of("id", id))
-      .onSuccess(res -> {
-        Integer count = res.value().iterator().next().getInteger(1);
-        boolean exist = count == 0;
-        JsonObject jsonObject = new JsonObject().put("exist", exist);
-        resultHandler.handle(Future.succeededFuture(jsonObject));
-      }).onFailure(res -> {
-      LOGGER.error("Database query error", res.getCause());
-      resultHandler.handle(Future.failedFuture(res.getCause()));
-    });
+      .onSuccess(exist(resultHandler))
+      .onFailure(res -> {
+        LOGGER.error("Database query error", res.getCause());
+        resultHandler.handle(Future.failedFuture(res.getCause()));
+      });
     return this;
   }
 
@@ -134,12 +129,7 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
   public FishDatabaseService existFishByName(String fishName, Handler<AsyncResult<JsonObject>> resultHandler) {
     SqlTemplate.forQuery(jdbcPool, sqlQueries.get(SqlQuery.EXISTING_FISH_NAME))
       .execute(Map.of("name", fishName))
-      .onSuccess(res -> {
-        Integer count = res.value().iterator().next().getInteger(1);
-        boolean exist = count == 0;
-        JsonObject jsonObject = new JsonObject().put("exist", exist);
-        resultHandler.handle(Future.succeededFuture(jsonObject));
-      }).onFailure(res -> {
+      .onSuccess(exist(resultHandler)).onFailure(res -> {
       LOGGER.error("Database query error", res.getCause());
       resultHandler.handle(Future.failedFuture(res.getCause()));
     });
@@ -157,5 +147,14 @@ public class FishDatabaseServiceImpl implements FishDatabaseService {
       }
     });
     return this;
+  }
+
+  private Handler<RowSet<Row>> exist(Handler<AsyncResult<JsonObject>> resultHandler) {
+    return res -> {
+      Integer count = res.iterator().next().getInteger(0);
+      boolean exist = count == 1;
+      JsonObject jsonObject = new JsonObject().put("exist", exist);
+      resultHandler.handle(Future.succeededFuture(jsonObject));
+    };
   }
 }
