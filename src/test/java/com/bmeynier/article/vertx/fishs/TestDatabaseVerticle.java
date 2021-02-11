@@ -12,9 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Test database interaction")
+@DisplayName("Test database interactions")
 @ExtendWith(VertxExtension.class)
 public class TestDatabaseVerticle {
 
@@ -75,25 +76,34 @@ public class TestDatabaseVerticle {
     });
   }
 
-/*
+
   @Test
   void it_should_get_existing_fish(VertxTestContext testContext) {
     String fish = "Discus";
-    createFish(fish).result();
 
-    dbService.fetchAllFishs(res -> {
+    createFish(fish).onSuccess(nothing ->
+      dbService.fetchAllFishs(res -> {
       if (res.succeeded()) {
         assertThat(res.result().encode()).contains("Discus");
       }
       testContext.completeNow();
-    });
+    }));
   }
-*/
 
 
   private Future createFish(String name) {
     Promise promise = Promise.promise();
     dbService.createFish(name, res -> {
+      if (res.succeeded()) {
+        promise.complete();
+      }
+    });
+    return promise.future();
+  }
+
+  private Future deleteAllFish() {
+    Promise promise = Promise.promise();
+    dbService.deleteAllFishs(res -> {
       if (res.succeeded()) {
         promise.complete();
       }

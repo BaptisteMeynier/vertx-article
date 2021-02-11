@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export LAUNCHER="io.vertx.core.Launcher"
+export LAUNCHER="com.bmeynier.article.vertx.fishs.FishLauncher"
 export VERTICLE="com.bmeynier.article.vertx.fishs.MainVerticle"
 export CMD="mvn compile"
 export VERTX_CMD="run"

@@ -6,11 +6,6 @@ This application was generated using http://start.vertx.io
 
 == Building
 
-To launch your tests:
-```
-./mvnw clean test
-```
-
 To package your application:
 ```
 ./mvnw clean package
@@ -21,41 +16,60 @@ To run your application:
 ./mvnw clean compile exec:java
 ```
 
-== Help
-
-* https://vertx.io/docs/[Vert.x Documentation]
-* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
-* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
-* https://gitter.im/eclipse-vertx/vertx-users[Vert.x Gitter]
-
-
-sudo docker build -t bmeynier/fishs-database:v1.0.0 .
-
-docker run -d -p 3306:3306 --name fish-db -e MYSQL_ROOT_PASSWORD=supersecret bmeynier/fishs-database:v1.0.0
-
-
+To use remote debug
+```
 ./mvnw vertx:debug -Dvertx.verticle=com.bmeynier.article.vertx.fishs.MainVerticle  -Ddebug.suspend=true -Ddebug.port=5005
+```
 
+Run
+```
+mvn vertx:run -Dvertx.verticle=com.bmeynier.article.vertx.fishs.MainVerticle -Dvertx.launcher=com.bmeynier.article.vertx.fishs.FishLauncher
+```
+=== Auto reload
 
-----------------------------------------
-Auto reload on intellij
+```
+./redeploy.sh
+```
+
+=== Auto reload with maven plugin
+
+```
+mvn vertx:run -Dvertx.verticle=com.bmeynier.article.vertx.fishs.MainVerticle -Dvertx.launcher=com.bmeynier.article.vertx.fishs.FishLauncher -Dvertx.redeploy
+```
+
+=== Auto reload with Intellij:
 
 Launcher:
-programm argument: run com.bmeynier.article.vertx.fishs.MainVerticle --redeploy=target/classes/**/*.class --launcher-class=io.vertx.core.Launcher
-main class: io.vertx.core.Launcher
-
+```
+programm argument: run com.bmeynier.article.vertx.fishs.MainVerticle --redeploy=target/classes/**/*.class --launcher-class=com.bmeynier.article.vertx.fishs.FishLauncher
+main class: com.bmeynier.article.vertx.fishs.FishLauncher
+```
 ctrl + MAJ + A
+```
 Type: Registry
 Find the key compiler.automake.allow.when.app.running and enable it or click the checkbox next to it
-
-
+```
 Setting:
-
+```
 Build => Build project automatically => check
+```
+
+=== other
+Deploy multiple instance
+```
+mvn vertx:run -Dvertx.verticle=com.bmeynier.article.vertx.fishs.MainVerticle -Dvertx.launcher=com.bmeynier.article.vertx.fishs.FishLauncher -Dvertx.runArgs=' --instances=5'
+```
+==== Help:
+```
+mvn vertx:help -Ddetail=true -Dgoal=start
+```
 
 
+== Gatling
+
+```
 $mvn gatling:test -Dgatling.simulationClass=computerdatabase.BasicSimulation
-
+```
 
 vertx start com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle  -instances 10 -cp ./target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar
 java -jar target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.jmxEnabled=true
