@@ -71,5 +71,22 @@ mvn vertx:help -Ddetail=true -Dgoal=start
 $mvn gatling:test -Dgatling.simulationClass=computerdatabase.BasicSimulation
 ```
 
-vertx start com.bmeynier.article.vertx.fishs.database.FishDatabaseVerticle  -instances 10 -cp ./target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar
-java -jar target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.jmxEnabled=true
+
+=== Launch Vertx with an other configuration
+
+Set up of mariadb database on Fedora:
+```
+sudo systemctl start podman
+
+mkdir -p mariadb/var/lib/mysql
+
+sudo podman build -t vertx_article:1.0 .
+
+sudo podman run --name fishdb -p 3306:3306 -v $PWD/mariadb/var/lib/mysql:/var/lib/mysql:Z -e MYSQL_ROOT_PASSWORD=vertx -e MYSQL_DATABASE=fishdb -e MYSQL_USER=vertx -e MYSQL_PASSWORD=vertx -d vertx_article
+
+```
+
+Vertx command:
+```
+java -jar target/vertx-fishs-1.0.0-SNAPSHOT-fat.jar -conf src/main/conf/application-prod-conf.json
+```

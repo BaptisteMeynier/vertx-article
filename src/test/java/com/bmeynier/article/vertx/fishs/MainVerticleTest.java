@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("A fairly basic test example")
 @ExtendWith(VertxExtension.class)
-public class TestMainVerticle {
+public class MainVerticleTest {
 
   @BeforeEach
   void deploy_verticle(Vertx vertx, VertxTestContext testContext) {

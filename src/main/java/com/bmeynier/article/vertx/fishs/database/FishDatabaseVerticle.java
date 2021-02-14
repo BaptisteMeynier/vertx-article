@@ -20,6 +20,8 @@ public class FishDatabaseVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FishDatabaseVerticle.class);
   private static final String CONFIG_FISHDB_JDBC_URL = "db.jdbc.url";
+  private static final String CONFIG_FISHDB_USER = "db.user";
+  private static final String CONFIG_FISHDB_PASSWORD = "db.password";
   private static final String CONFIG_FISHDB_JDBC_MAX_POOL_SIZE = "db.jdbc.max_pool_size";
   private static final String CONFIG_FISHDB_SQL_QUERIES_RESOURCE_FILE = "db.sqlqueries.resource.file";
   private static final String CONFIG_FISHDB_QUEUE = "fishdb.queue";
@@ -30,9 +32,13 @@ public class FishDatabaseVerticle extends AbstractVerticle {
     HashMap<SqlQuery, String> sqlQueries = loadSqlQueries();
     String jdbcUrl = config().getString(CONFIG_FISHDB_JDBC_URL, "jdbc:hsqldb:file:target/db/fish");
     int poolSize = config().getInteger(CONFIG_FISHDB_JDBC_MAX_POOL_SIZE, 16);
+    String dbUser = config().getString(CONFIG_FISHDB_USER, "");
+    String dbPassword = config().getString(CONFIG_FISHDB_PASSWORD, "");
 
     JDBCConnectOptions jdbcConnectOptions = new JDBCConnectOptions()
-      .setJdbcUrl(jdbcUrl);
+      .setJdbcUrl(jdbcUrl)
+      .setUser(dbUser)
+      .setPassword(dbPassword);
 
     PoolOptions poolOptions = new PoolOptions().setMaxSize(poolSize);
 

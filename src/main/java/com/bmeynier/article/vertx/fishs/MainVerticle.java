@@ -17,22 +17,29 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
+    JsonObject config = vertx.getOrCreateContext().config();
+
+    if (config.isEmpty()) {
+      initializeCustomizedConfigLoader();
+    } else {
+      initalizeVerticle(config);
+    }
+
+    initializeShellService();
+  }
+
+  private void initializeCustomizedConfigLoader() {
     ConfigStoreOptions conf = new ConfigStoreOptions()
       .setType("file")
+      .setOptional(true)
       .setConfig(new JsonObject().put("path", "application.json"));
 
-    ConfigRetriever retriever = ConfigRetriever.create(vertx, new ConfigRetrieverOptions().addStore(conf));
+    ConfigRetriever retriever = ConfigRetriever.create(vertx, new ConfigRetrieverOptions().addStore(conf).setScanPeriod(2000));
 
-    retriever.getConfig(json -> {
-      JsonObject jsonConf = json.result();
-      vertx.deployVerticle(FishDatabaseVerticle.class.getName(), new DeploymentOptions().setInstances(2).setConfig(jsonConf))
-        .onSuccess(ar -> {
-          vertx.deployVerticle(HttpServerVerticle.class.getName(), new DeploymentOptions().setConfig(jsonConf));
-        }).onFailure(ar -> {
-        System.out.println(ar.getCause().toString());
-      });
-    });
+    retriever.getConfig(json -> initalizeVerticle(json.result()));
+  }
 
+  private void initializeShellService() {
     ShellService service = ShellService.create(vertx,
       new ShellServiceOptions().setTelnetOptions(
         new TelnetTermOptions().
@@ -43,9 +50,19 @@ public class MainVerticle extends AbstractVerticle {
     service.start();
   }
 
+
+  private void initalizeVerticle(JsonObject jsonConf) {
+    vertx.deployVerticle(FishDatabaseVerticle.class.getName(), new DeploymentOptions().setInstances(2).setConfig(jsonConf))
+      .onSuccess(ar -> {
+        vertx.deployVerticle(HttpServerVerticle.class.getName(), new DeploymentOptions().setConfig(jsonConf));
+      }).onFailure(ar -> {
+      System.out.println(ar.getCause().toString());
+    });
+  }
+
   public static void main(String... args) {
     Vertx.vertx().deployVerticle(MainVerticle.class.getName());
   }
 
-
 }
+

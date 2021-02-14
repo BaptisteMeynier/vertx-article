@@ -1,8 +1,10 @@
 {
   "http.server.port": 8082,
   "bus.db": "fishdb.queue",
-  "db.jdbc.url": "jdbc:hsqldb:file:db/fish",
-  "db.jdbc.driver_class": "org.hsqldb.jdbcDriver",
+  "db.jdbc.url": "jdbc:mysql://localhost:3306/fishdb",
+  "db.user": "vertx",
+  "db.password": "vertx",
+  "db.jdbc.driver_class": "com.mysql.jdbc.Driver",
   "db.jdbc.max_pool_size": 20,
   "db.sqlqueries.resource.file": "/db-queries.properties"
 }

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Test database interactions")
 @ExtendWith(VertxExtension.class)
-public class TestDatabaseVerticle {
+public class DatabaseVerticleTest {
 
   FishDatabaseService dbService;
 
